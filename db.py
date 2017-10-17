@@ -63,8 +63,7 @@ class DB(object):
     def poll(s, user, software, file_path, status, notes=""):
         """ Poll the database to show activity """
         with s.connect() as db:
-            for row in s.write(db, None, time.time(), user, software, file_path, status, notes):
-                yield row
+            return s.write(db, None, time.time(), user, software, file_path, status, notes)
 
     def read_all(s):
         """ Quick way to grab all data from the database """
@@ -81,11 +80,15 @@ class DB(object):
 if __name__ == '__main__':
     import test
     import pprint
+    import os
     with test.temp(".db") as f:
+        os.unlink(f)
         db = DB(f)
-        pprint.pprint(db.read_all())
+        pprint.pprint(list(db.read_all()))
+        print("ADDING", "-"*20)
         db.poll("me", "python", "path/to/file", "active", "first test")
         db.poll("you", "python", "path/to/file", "active", "second test")
         db.poll("me", "python", "path/to/other/file", "idle", "third test")
         pprint.pprint(list(db.read_all()))
+        print("GET RECENT", "-"*20)
         pprint.pprint(list(db.read_time(time.time() - 1000)))
