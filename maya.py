@@ -15,10 +15,15 @@ class Maya(object):
         cmds.scriptJob(e=("ToolChanged", s.poll))
         s.monitor.start()
 
+    def note(s, note):
+        """ Set / Change note """
+        s.monitor.note = note
+
     def poll(s):
         """ Record activity state """
         try:
-            pass
+            s.monitor.path = cmds.file(q=True, sn=True)
+            s.monitor.checkin()
     except Exception as err:
             traceback.print_exc()
             raise err
