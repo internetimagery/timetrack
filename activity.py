@@ -3,9 +3,16 @@ import db
 import time
 import threading
 
-class Monitor(object):
+class Borg(object):
+    """ Maintain singleton status """
+    _shared_state = {}
+    def __init__(s):
+        s.__dict__ = s._shared_state
+
+class Monitor(Borg):
     """ Monitor status and periodically poll DB """
     def __init__(s, path_to_db, software, user):
+        Borg.__init__(s)
         s.db = db.DB(path_to_db)
         s.poll_interval = db.MINUTE * 5
         s.last_active = time.time()
