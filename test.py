@@ -22,5 +22,5 @@ def temp(suffix=""):
 
 if __name__ == '__main__':
     with temp(".txt") as f:
-        print("File:", f)
-    print("Exists?:", os.path.isfile(f))
+        assert os.path.isfile(f)
+    assert not os.path.isfile(f)

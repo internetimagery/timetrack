@@ -47,14 +47,17 @@ if __name__ == '__main__':
     import test
     import os
     import time
-    import pprint
     with test.temp(".db") as tmp:
         os.unlink(tmp)
         mon = Monitor(tmp, "python", "ME!")
         mon.interval = 1 # speed interval to one second
         mon.note = "HI THERE"
         mon.path = "path/to/file"
+        print("Polling please wait...")
         mon.start()
         time.sleep(3)
-        pprint.pprint(list(mon.db.read_all()))
         mon.stop()
+        res = list(mon.db.read_all())
+        assert len(res) == 3
+        assert res[0]["file"] == "path/to/file"
+        assert res[0]["note"] == "HI THERE"
