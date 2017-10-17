@@ -21,7 +21,7 @@ class Maya(activity.Monitor):
         try:
             s.set_path(cmds.file(q=True, sn=True) or "")
             activity.Monitor.checkin(s)
-    except Exception as err:
+        except Exception as err:
             traceback.print_exc()
             raise err
 
