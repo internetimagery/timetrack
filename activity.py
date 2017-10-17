@@ -43,6 +43,11 @@ class Monitor(Borg):
         """ Check in to show activity with software """
         s.last_active = time.time()
 
+    def set_note(s, note):
+        s.note = note
+    def set_path(s, path):
+        s.path = path
+
 if __name__ == '__main__':
     import test
     import os
@@ -51,8 +56,8 @@ if __name__ == '__main__':
         os.unlink(tmp)
         mon = Monitor(tmp, "python", "ME!")
         mon.interval = 1 # speed interval to one second
-        mon.note = "HI THERE"
-        mon.path = "path/to/file"
+        mon.set_note("HI THERE")
+        mon.set_path("path/to/file")
         print("Polling please wait...")
         mon.start()
         time.sleep(3)
