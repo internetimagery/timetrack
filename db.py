@@ -40,6 +40,10 @@ class DB(object):
         with s.connect() as db:
             return [r for r in db("SELECT * FROM timesheet")]
 
+    def read(s, selection, query):
+        """ Grab info from the DB """
+        with s.connect() as db:
+            return [r for r in db("SELECT * FROM timesheet WHERE ?=?", (selection, query))]
 
 if __name__ == '__main__':
     import test
@@ -47,4 +51,7 @@ if __name__ == '__main__':
         db = DB(f)
         print(db.read_all())
         db.poll("me", "python", "path/to/file", "active", "first test")
+        db.poll("you", "python", "path/to/file", "active", "second test")
+        db.poll("me", "python", "path/to/other/file", "idle", "third test")
         print(db.read_all())
+        print(db.read("user", "me"))
