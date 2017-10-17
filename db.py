@@ -20,14 +20,13 @@ class DB(object):
     def __init__(s, path):
         s.path = path
         s.struct = collections.OrderedDict()
-        s.struct["id"] = "INTEGER PRIMARY KEY"
-        s.struct["start"] = "NUMBER"
-        s.struct["end"] = "NUMBER"
-        s.struct["user"] = "TEXT"
-        s.struct["software"] = "TEXT"
-        s.struct["file"] = "TEXT"
-        s.struct["status"] = "TEXT"
-        s.struct["notes"] = "TEXT"
+        s.struct["id"] = "INTEGER PRIMARY KEY" # Entry ID
+        s.struct["checkin"] = "NUMBER" # Time entry was logged
+        s.struct["user"] = "TEXT" # Username
+        s.struct["software"] = "TEXT" # Software running
+        s.struct["file"] = "TEXT" # File loaded in software
+        s.struct["status"] = "TEXT" # Status of user (ie active/idle/etc)
+        s.struct["notes"] = "TEXT" # Additional information
 
     def create(s):
         """ Create a fresh database """
@@ -64,7 +63,7 @@ class DB(object):
     def poll(s, user, software, file_path, status, notes=""):
         """ Poll the database to show activity """
         with s.connect() as db:
-            return s.write(db, None, time.time(), time.time(), user, software, file_path, status, notes)
+            return s.write(db, None, time.time(), user, software, file_path, status, notes)
 
     def read_all(s):
         """ Quick way to grab all data from the database """
@@ -74,7 +73,7 @@ class DB(object):
     def read_time(s, timeago):
         """ Grab records from the DB that have a start date greater than the provided time. """
         with s.connect() as db:
-            return s.read(db, "start >= ?", timeago)
+            return s.read(db, "checkin >= ?", timeago)
 
 if __name__ == '__main__':
     import test
