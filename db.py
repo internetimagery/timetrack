@@ -49,28 +49,32 @@ class DB(object):
         finally:
             db.close()
 
+    def write(s, cursor, *values):
+        """ Write into DB stuff """
+        num = len(s.struct)
+        if len(values) != num:
+            raise RuntimeError("Not enough values provided.")
+        cursor.execute("INSERT INTO timesheet VALUES ({})".format(",".join("?" for _ in range(num))), values)
+        return cursor.lastrowid
+
+    def read(s, cursor, query, *values):
+        """ Read query and return formatted response """
+        return [{k: v for k, v in zip(s.struct, r)} for r in cursor.execute("SELECT * FROM timesheet WHERE ({})".format(query), values)]
+
     def poll(s, user, software, file_path, status, notes=""):
         """ Poll the database to show activity """
-        return s.write(time.time(), time.time(), user, software, file_path, status, notes)
-
-    def write(s, *values):
-        """ Write into DB stuff """
-        with s.connect() as cursor:
-            cursor.execute("INSERT INTO timesheet VALUES (null, ?, ?, ?, ?, ?, ?, ?)", values)
-            return cursor.lastrowid
-
-    def read(s, query, *values):
-        """ Read query and return formatted response """
-        with s.connect() as cursor:
-            return [{k: v for k, v in zip(s.struct, r)} for r in cursor.execute("SELECT * FROM timesheet WHERE ({})".format(query), values)]
+        with s.connect() as db:
+            return s.write(db, None, time.time(), time.time(), user, software, file_path, status, notes)
 
     def read_all(s):
         """ Quick way to grab all data from the database """
-        return s.read("id!=0")
+        with s.connect() as db:
+            return s.read(db, "id != 0")
 
     def read_time(s, timeago):
         """ Grab records from the DB that have a start date greater than the provided time. """
-        return s.read("start>=?", timeago)
+        with s.connect() as db:
+            return s.read(db, "start >= ?", timeago)
 
 if __name__ == '__main__':
     import test
