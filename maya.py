@@ -6,8 +6,8 @@ import traceback
 import maya.cmds as cmds
 
 class Maya(activity.Monitor):
-    def __init__(s, db_path):
-        activity.Monitor.__init__(s, db_path, "maya", getpass.getuser())
+    def __init__(s):
+        activity.Monitor.__init__(s, "maya", getpass.getuser())
 
     def start(s):
         """ Get running! """

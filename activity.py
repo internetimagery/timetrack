@@ -2,6 +2,7 @@
 from __future__ import print_function
 import db
 import time
+import os.path
 import threading
 
 class Borg(object):
@@ -12,10 +13,11 @@ class Borg(object):
 
 class Monitor(Borg):
     """ Monitor status and periodically poll DB """
-    def __init__(s, path_to_db, software, user):
+    def __init__(s, software, user, db_path=os.path.expanduser("~/timesheet.db")):
+        print(db_path)
         Borg.__init__(s)
         s.active = True
-        s.db = db.DB(path_to_db)
+        s.db = db.DB(db_path)
         s.interval = db.MINUTE * 5
         s.last_active = time.time()
         s.note = ""
@@ -54,7 +56,7 @@ if __name__ == '__main__':
     import time
     with test.temp(".db") as tmp:
         os.unlink(tmp)
-        mon = Monitor(tmp, "python", "ME!")
+        mon = Monitor("python", "ME!", tmp)
         mon.interval = 1 # speed interval to one second
         mon.set_note("HI THERE")
         mon.set_path("path/to/file")
