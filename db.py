@@ -58,22 +58,25 @@ class DB(object):
 
     def read(s, cursor, query, *values):
         """ Read query and return formatted response """
-        return [{k: v for k, v in zip(s.struct, r)} for r in cursor.execute("SELECT * FROM timesheet WHERE ({})".format(query), values)]
+        return ({k: v for k, v in zip(s.struct, r)} for r in cursor.execute("SELECT * FROM timesheet WHERE ({})".format(query), values))
 
     def poll(s, user, software, file_path, status, notes=""):
         """ Poll the database to show activity """
         with s.connect() as db:
-            return s.write(db, None, time.time(), user, software, file_path, status, notes)
+            for row in s.write(db, None, time.time(), user, software, file_path, status, notes):
+                yield row
 
     def read_all(s):
         """ Quick way to grab all data from the database """
         with s.connect() as db:
-            return s.read(db, "id != 0")
+            for row in s.read(db, "id != 0"):
+                yield row
 
     def read_time(s, timeago):
         """ Grab records from the DB that have a start date greater than the provided time. """
         with s.connect() as db:
-            return s.read(db, "checkin >= ?", timeago)
+            for row in s.read(db, "checkin >= ?", timeago):
+                yield row
 
 if __name__ == '__main__':
     import test
@@ -84,5 +87,5 @@ if __name__ == '__main__':
         db.poll("me", "python", "path/to/file", "active", "first test")
         db.poll("you", "python", "path/to/file", "active", "second test")
         db.poll("me", "python", "path/to/other/file", "idle", "third test")
-        pprint.pprint(db.read_all())
-        pprint.pprint(db.read_time(time.time() - 1000))
+        pprint.pprint(list(db.read_all()))
+        pprint.pprint(list(db.read_time(time.time() - 1000)))
