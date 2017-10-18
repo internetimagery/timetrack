@@ -21,6 +21,9 @@ class DB(object):
         s.path = path
         s.struct = collections.OrderedDict()
         s.struct["id"] = "INTEGER PRIMARY KEY" # Entry ID
+        s.struct["checkin"] = "NUMBER" # Time entry was logged
+
+
 
     def create(s):
         """ Create a fresh database """
@@ -57,7 +60,7 @@ class DB(object):
     def poll(s, *args):
         """ Poll the database to show activity """
         with s.connect() as db:
-            return s.write(db, None, *args)
+            return s.write(db, None, time.time(), *args)
 
     def read_all(s):
         """ Quick way to grab all data from the database """
