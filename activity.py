@@ -19,6 +19,7 @@ class Monitor(Borg):
         # Create database and set its structure
         s.db = db.DB(db_path)
         s.db.struct["session"] = "TEXT" # ID for software session
+        s.db.struct["period"] = "NUMBER" # Period of time this chunk covers
         s.db.struct["user"] = "TEXT" # Username
         s.db.struct["software"] = "TEXT" # Software running
         s.db.struct["file"] = "TEXT" # File loaded in software
@@ -28,7 +29,7 @@ class Monitor(Borg):
         # Set variables
         s.uuid = str(uuid.uuid4()) # Session ID
         s.active = True # Keep polling? Stop?
-        s.interval = db.MINUTE * 5 # Poll how often?
+        s.period = db.MINUTE * 5 # Poll how often?
         s.last_active = time.time() # Last checkin
         s.note = ""
         s.software = software
@@ -47,9 +48,9 @@ class Monitor(Borg):
     def poll(s):
         """ Update DB with activity """
         while s.active:
-            last_active = (time.time() - s.last_active * 1.2) <= s.interval # Give ourselves a 20% activity buffer
-            s.db.poll(s.uuid, s.user, s.software, s.path, "active" if last_active else "idle", s.note)
-            time.sleep(s.interval)
+            last_active = (time.time() - s.last_active * 1.2) <= s.period # Give ourselves a 20% activity buffer
+            s.db.poll(s.uuid, s.period, s.user, s.software, s.path, "active" if last_active else "idle", s.note)
+            time.sleep(s.period)
 
     def checkin(s):
         """ Check in to show activity with software """
@@ -66,7 +67,7 @@ if __name__ == '__main__':
     with test.temp(".db") as tmp:
         os.unlink(tmp)
         mon = Monitor("python", "ME!", tmp)
-        mon.interval = 1 # speed interval to one second
+        mon.period = 1 # speed period to one second
         mon.set_note("HI THERE")
         mon.set_path("path/to/file")
         print("Polling please wait...")
