@@ -8,18 +8,26 @@
     <link rel="stylesheet" href="css/main.css">
   </head>
   <body>
-    <div id="chart" class="chart">
-
-    </div>
+    <div id="chart" class="chart"></div>
     <script src="js/plotly.min.js" charset="utf-8"></script>
     <script type="text/javascript">
       var plot = {{replace plot}}
-      Plotly.newPlot(
-        "chart",
-        plot,
-        {title: "My awesome week of work!",
-          barmode: "stack",
-          bargap: 0.05})
+      var layout = {
+        title: "My awesome week of work!",
+        barmode: "stack",
+        bargap: 0.05,
+        yaxis: {
+          title: "Hours",
+          showline: true
+          }
+        }
+      var config = {
+        scrollZoom: true,
+        showLink: false,
+        displaylogo: false,
+        showlegend: false
+      }
+      Plotly.newPlot("chart", plot, layout, config)
     </script>
   </body>
 </html>

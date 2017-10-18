@@ -25,7 +25,14 @@ plot = [
     "type": "bar",
     "name": "shot2",
     "text": ["I have info for you...","stuff to say","info here"]
-  }
+  },
+   {
+     "x": ["monday", "tuesday", "wednesday"],
+     "y": [5, 4, 2],
+     "type": "bar",
+     "name": "shot3",
+     "text": ["Maybe filepath here","things","ok nice"]
+   }
 ]
 plot = json.dumps(plot)
 
