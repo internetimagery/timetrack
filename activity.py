@@ -63,7 +63,6 @@ class Monitor(Borg):
 if __name__ == '__main__':
     import test
     import os
-    import time
     with test.temp(".db") as tmp:
         os.unlink(tmp)
         mon = Monitor("python", "ME!", tmp)
