@@ -58,7 +58,7 @@ class DB(object):
 
     def read(s, cursor, query, *values):
         """ Read query and return formatted response """
-        return [{k: v for k, v in zip(s.struct, r)} for r in cursor.execute("SELECT * FROM timesheet WHERE ({})".format(query), values)]
+        return ({k: v for k, v in zip(s.struct, r)} for r in cursor.execute("SELECT * FROM timesheet WHERE ({})".format(query), values))
 
     def poll(s, user, software, file_path, status, notes=""):
         """ Poll the database to show activity """
