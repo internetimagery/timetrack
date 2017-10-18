@@ -23,55 +23,41 @@ class DB(object):
         s.struct["id"] = "INTEGER PRIMARY KEY" # Entry ID
         s.struct["checkin"] = "NUMBER" # Time entry was logged
 
+    def __enter__(s):
+        """ Start context manager """
+        exist = os.path.isfile(s.path)
+        s.db = db = sqlite3.connect(s.path)
+        s.cursor = db.cursor()
+        if not exist:
+            s.cursor.execute("CREATE TABLE timesheet ({})".format(",".join("{} {}".format(a, s.struct[a]) for a in s.struct)))
 
+    def __exit__(s, exc_type, exc_val, exc_tb):
+        """ Close DB connection """
+        if not exc_type:
+            s.db.commit()
+        s.db.close()
 
-    def create(s):
-        """ Create a fresh database """
-        db = sqlite3.connect(s.path)
-        db.cursor().execute("CREATE TABLE timesheet ({})".format(",".join("{} {}".format(a, s.struct[a]) for a in s.struct)))
-        db.commit()
-        db.close()
-
-    @contextlib.contextmanager
-    def connect(s):
-        """ Connect to the database and do something """
-        if not os.path.isfile(s.path):
-            s.create()
-        db = sqlite3.connect(s.path)
-        cursor = db.cursor()
-        try:
-            yield cursor
-            db.commit()
-        finally:
-            db.close()
-
-    def write(s, cursor, *values):
+    def write(s, *values):
         """ Write into DB stuff """
         num = len(s.struct)
         if len(values) != num:
             raise RuntimeError("Not enough values provided.")
-        cursor.execute("INSERT INTO timesheet VALUES ({})".format(",".join("?" for _ in range(num))), values)
-        return cursor.lastrowid
+        s.cursor.execute("INSERT INTO timesheet VALUES ({})".format(",".join("?" for _ in range(num))), values)
+        return s.cursor.lastrowid
 
-    def read(s, cursor, query, *values):
+    def read(s, query, *values):
         """ Read query and return formatted response """
-        return ({k: v for k, v in zip(s.struct, r)} for r in cursor.execute("SELECT * FROM timesheet WHERE ({})".format(query), values))
+        return ({k: v for k, v in zip(s.struct, r)} for r in s.cursor.execute("SELECT * FROM timesheet WHERE ({})".format(query), values))
 
-    def poll(s, *args):
+    def poll(s, *values):
         """ Poll the database to show activity """
-        with s.connect() as db:
-            return s.write(db, None, time.time(), *args)
+        with s:
+            return s.write(None, time.time(), *values)
 
     def read_all(s):
         """ Quick way to grab all data from the database """
-        with s.connect() as db:
-            for row in s.read(db, "id != 0"):
-                yield row
-
-    def read_time(s, timeago):
-        """ Grab records from the DB that have a start date greater than the provided time. """
-        with s.connect() as db:
-            for row in s.read(db, "checkin >= ?", timeago):
+        with s:
+            for row in s.read("id != 0"):
                 yield row
 
 if __name__ == '__main__':
@@ -87,4 +73,3 @@ if __name__ == '__main__':
         db.poll("second test")
         db.poll("third test")
         assert len(list(db.read_all())) == 3
-        # assert len(list(db.read_time(time.time() - 1000))) == 3

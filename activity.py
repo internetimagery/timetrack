@@ -57,6 +57,12 @@ class Monitor(Borg):
         """ Check in to show activity with software """
         s.last_active = time.time()
 
+    def query(s, from_, to_):
+        """ Query active entries betweem date amd date """
+        with s.db:
+            for row in s.db.read("status = ? AND checkin BETWEEN ? AND ?", "active", from_, to_):
+                yield row
+
     def set_note(s, note):
         s.note = note
     def set_path(s, path):
@@ -73,9 +79,12 @@ if __name__ == '__main__':
         mon.set_path("path/to/file")
         print("Polling please wait...")
         mon.start()
-        time.sleep(3)
+        time.sleep(1) # One active
+        mon.checkin()
+        time.sleep(2) # One active, one idle
         mon.stop()
-        res = list(mon.db.read_all())
-        assert len(res) == 3
+        curr = time.time()
+        res = list(mon.query(curr - 10, curr))
+        assert len(res) == 2
         assert res[0]["file"] == "path/to/file"
         assert res[0]["note"] == "HI THERE"
