@@ -23,13 +23,15 @@ class Asset(object):
     def compile(s, title="TITLE"):
         """ Build our page with all our assets combined """
         index = s.assets["index.html"]
-        for tag in re.finditer(r"{{(asset|var)\s([^}]+)}}", index):
-            if tag.group(1) == "asset":
-                print("ASSET", tag.group(0))
-            if tag.group(1) == "var":
-                print("VAR", tag.group(0))
 
-        # return s.assets["index"].format(title=title, **s.assets)
+        for m in reversed(tuple(re.finditer(r"<\s*(?P<tag>\w+).+?(?P<quote>'|\")(?P<asset>[-_\w\s\./]+\.\w+)(?P=quote).+", index))):
+            tag = m.group("tag")
+            if tag == "link": # CSS sheet
+                index = index.replace(m.group(0), "<style media=\"screen\">\n{}</style>".format(s.assets[m.group("asset")]))
+            if tag == "script": # Javascript
+                index = index.replace(m.group(0), "<script type=\"text/javascript\">\n{}</script>".format(s.assets[m.group("asset")]))
+
+        return index
 
     def view(s):
         """ View timesheet with up to date information. """
@@ -39,4 +41,4 @@ class Asset(object):
 
 if __name__ == '__main__':
     a = Asset()
-    # a.compile()
+    a.view()
