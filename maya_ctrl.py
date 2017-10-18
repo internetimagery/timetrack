@@ -8,6 +8,7 @@ import maya.cmds as cmds
 class Maya(activity.Monitor):
     def __init__(s):
         activity.Monitor.__init__(s, "maya", getpass.getuser())
+        s.checkin()
 
     def start(s):
         """ Get running! """

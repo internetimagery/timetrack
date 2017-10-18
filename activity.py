@@ -14,7 +14,6 @@ class Borg(object):
 class Monitor(Borg):
     """ Monitor status and periodically poll DB """
     def __init__(s, software, user, db_path=os.path.expanduser("~/timesheet.db")):
-        print(db_path)
         Borg.__init__(s)
         s.active = True
         s.db = db.DB(db_path)
