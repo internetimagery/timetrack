@@ -6,6 +6,8 @@ import uuid
 import os.path
 import threading
 
+UUID = str(uuid.uuid4())
+
 class Borg(object):
     """ Maintain singleton status """
     _shared_state = {}
@@ -27,7 +29,6 @@ class Monitor(Borg):
         s.db.struct["note"] = "TEXT" # Additional information
 
         # Set variables
-        s.uuid = str(uuid.uuid4()) # Session ID
         s.active = True # Keep polling? Stop?
         s.period = db.MINUTE * 5 # Poll how often?
         s.last_active = time.time() # Last checkin
@@ -48,8 +49,8 @@ class Monitor(Borg):
     def poll(s):
         """ Update DB with activity """
         while s.active:
-            last_active = (time.time() - s.last_active * 1.2) <= s.period # Give ourselves a 20% activity buffer
-            s.db.poll(s.uuid, s.period, s.user, s.software, s.path, "active" if last_active else "idle", s.note)
+            last_active = (time.time() - s.last_active) <= s.period
+            s.db.poll(UUID, s.period, s.user, s.software, s.path, "active" if last_active else "idle", s.note)
             time.sleep(s.period)
 
     def checkin(s):
