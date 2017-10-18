@@ -5,7 +5,7 @@ import activity
 import traceback
 import maya.cmds as cmds
 
-class Maya(activity.Monitor):
+class Monitor(activity.Monitor):
     def __init__(s):
         activity.Monitor.__init__(s, "maya", getpass.getuser())
         s.checkin()
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     import time
     with test.temp(".db") as tmp:
         os.unlink(tmp)
-        maya = Maya(tmp)
+        maya = Monitor(tmp)
         maya.interval = 1 # speed interval to one second
         maya.set_note("Hello")
         print("Polling please wait...")
