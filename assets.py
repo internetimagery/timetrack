@@ -14,9 +14,11 @@ class Asset(object):
     def __init__(s):
         # Load our assets in
         s.assets = {}
-        for asset in os.listdir(ASSET_ROOT):
-            with open(os.path.join(ASSET_ROOT, asset), "r") as f:
-                s.assets[asset] = f.read()
+        for root, dirs, files in os.walk(ASSET_ROOT):
+            rel_root = os.path.relpath(root, ASSET_ROOT)
+            for f in files:
+                with open(os.path.join(root, f), "r") as data:
+                    s.assets[os.path.normpath(os.path.join(rel_root, f)).replace("\\", "/")] = data.read()
 
     def compile(s, title="TITLE"):
         """ Build our page with all our assets combined """
@@ -37,4 +39,4 @@ class Asset(object):
 
 if __name__ == '__main__':
     a = Asset()
-    a.compile()
+    # a.compile()
