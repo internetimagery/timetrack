@@ -26,7 +26,7 @@ class DB(object):
         s.struct["software"] = "TEXT" # Software running
         s.struct["file"] = "TEXT" # File loaded in software
         s.struct["status"] = "TEXT" # Status of user (ie active/idle/etc)
-        s.struct["notes"] = "TEXT" # Additional information
+        s.struct["note"] = "TEXT" # Additional information
 
     def create(s):
         """ Create a fresh database """
@@ -60,29 +60,33 @@ class DB(object):
         """ Read query and return formatted response """
         return ({k: v for k, v in zip(s.struct, r)} for r in cursor.execute("SELECT * FROM timesheet WHERE ({})".format(query), values))
 
-    def poll(s, user, software, file_path, status, notes=""):
+    def poll(s, user, software, file_path, status, note=""):
         """ Poll the database to show activity """
         with s.connect() as db:
-            return s.write(db, None, time.time(), user, software, file_path, status, notes)
+            return s.write(db, None, time.time(), user, software, file_path, status, note)
 
     def read_all(s):
         """ Quick way to grab all data from the database """
         with s.connect() as db:
-            return s.read(db, "id != 0")
+            for row in s.read(db, "id != 0"):
+                yield row
 
     def read_time(s, timeago):
         """ Grab records from the DB that have a start date greater than the provided time. """
         with s.connect() as db:
-            return s.read(db, "checkin >= ?", timeago)
+            for row in s.read(db, "checkin >= ?", timeago):
+                yield row
 
 if __name__ == '__main__':
     import test
-    import pprint
+    import os
     with test.temp(".db") as f:
+        os.unlink(f)
         db = DB(f)
-        pprint.pprint(db.read_all())
+        assert list(db.read_all()) == []
+        # Add entries
         db.poll("me", "python", "path/to/file", "active", "first test")
         db.poll("you", "python", "path/to/file", "active", "second test")
         db.poll("me", "python", "path/to/other/file", "idle", "third test")
-        pprint.pprint(db.read_all())
-        pprint.pprint(db.read_time(time.time() - 1000))
+        assert len(list(db.read_all())) == 3
+        assert len(list(db.read_time(time.time() - 1000))) == 3
