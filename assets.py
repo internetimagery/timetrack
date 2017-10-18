@@ -3,11 +3,32 @@ from __future__ import print_function
 
 import webbrowser
 import os.path
+import json
 import os
 import re
 
 ASSET_ROOT = os.path.join(os.path.dirname(__file__), "assets")
 TMP_TIMESHEET = os.path.expanduser("~/timesheet.tmp.html")
+
+
+plot = [
+  {
+    "x": ["monday", "tuesday", "wednesday"],
+    "y": [8, 7, 2],
+    "type": "bar",
+    "name": "shot1",
+    "text": ["extra information","more info","some info about shot"]
+  },
+  {
+    "x": ["monday", "tuesday", "wednesday"],
+    "y": [2, 3, 5],
+    "type": "bar",
+    "name": "shot2",
+    "text": ["I have info for you...","stuff to say","info here"]
+  }
+]
+plot = json.dumps(plot)
+
 
 class Asset(object):
     """ Manage assets for presentation """
@@ -25,6 +46,7 @@ class Asset(object):
         """ Build our page with all our assets combined """
         index = s.assets["index.html"]
         s.vars["title"] = "MY TITLE!"
+        s.vars["plot"] = plot
 
         for m in reversed(tuple(re.finditer(r"{{(?P<action>\w+)\s+(?P<var>[\w_-]+)}}", index))):
             act = m.group("action")

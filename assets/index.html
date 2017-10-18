@@ -13,26 +13,11 @@
     </div>
     <script src="js/plotly.min.js" charset="utf-8"></script>
     <script type="text/javascript">
+      var plot = {{replace plot}}
       Plotly.newPlot(
         "chart",
-        [
-          {
-            x: ["monday", "tuesday", "wednesday"],
-            y: [8, 7, 2],
-            type: "bar",
-            name: "shot1",
-            text: ["extra information","more info","some info about shot"]
-          },
-          {
-            x: ["monday", "tuesday", "wednesday"],
-            y: [2, 3, 5],
-            type: "bar",
-            name: "shot2",
-            text: ["I have info for you...","stuff to say","info here"]
-          }
-        ],
-        {
-          title: "My awesome week of work!",
+        plot,
+        {title: "My awesome week of work!",
           barmode: "stack",
           bargap: 0.05})
     </script>
