@@ -21,12 +21,6 @@ class DB(object):
         s.path = path
         s.struct = collections.OrderedDict()
         s.struct["id"] = "INTEGER PRIMARY KEY" # Entry ID
-        s.struct["checkin"] = "NUMBER" # Time entry was logged
-        s.struct["user"] = "TEXT" # Username
-        s.struct["software"] = "TEXT" # Software running
-        s.struct["file"] = "TEXT" # File loaded in software
-        s.struct["status"] = "TEXT" # Status of user (ie active/idle/etc)
-        s.struct["note"] = "TEXT" # Additional information
 
     def create(s):
         """ Create a fresh database """
@@ -60,10 +54,10 @@ class DB(object):
         """ Read query and return formatted response """
         return ({k: v for k, v in zip(s.struct, r)} for r in cursor.execute("SELECT * FROM timesheet WHERE ({})".format(query), values))
 
-    def poll(s, user, software, file_path, status, note=""):
+    def poll(s, *args):
         """ Poll the database to show activity """
         with s.connect() as db:
-            return s.write(db, None, time.time(), user, software, file_path, status, note)
+            return s.write(db, None, *args)
 
     def read_all(s):
         """ Quick way to grab all data from the database """
@@ -83,10 +77,11 @@ if __name__ == '__main__':
     with test.temp(".db") as f:
         os.unlink(f)
         db = DB(f)
+        db.struct["field"] = "TEXT"
         assert list(db.read_all()) == []
         # Add entries
-        db.poll("me", "python", "path/to/file", "active", "first test")
-        db.poll("you", "python", "path/to/file", "active", "second test")
-        db.poll("me", "python", "path/to/other/file", "idle", "third test")
+        db.poll("first test")
+        db.poll("second test")
+        db.poll("third test")
         assert len(list(db.read_all())) == 3
-        assert len(list(db.read_time(time.time() - 1000))) == 3
+        # assert len(list(db.read_time(time.time() - 1000))) == 3

@@ -16,7 +16,17 @@ class Monitor(Borg):
     def __init__(s, software, user, db_path=os.path.expanduser("~/timesheet.db")):
         Borg.__init__(s)
         s.active = True
+        # Create database and set its structure
         s.db = db.DB(db_path)
+        s.db.struct["id"] = "INTEGER PRIMARY KEY" # Entry ID
+        s.db.struct["checkin"] = "NUMBER" # Time entry was logged
+        s.db.struct["session"] = "TEXT" # ID for software session
+        s.db.struct["user"] = "TEXT" # Username
+        s.db.struct["software"] = "TEXT" # Software running
+        s.db.struct["file"] = "TEXT" # File loaded in software
+        s.db.struct["status"] = "TEXT" # Status of user (ie active/idle/etc)
+        s.db.struct["note"] = "TEXT" # Additional information
+
         s.interval = db.MINUTE * 5
         s.last_active = time.time()
         s.note = ""
@@ -36,7 +46,7 @@ class Monitor(Borg):
     def poll(s):
         """ Update DB with activity """
         while s.active:
-            last_active = (time.time() - s.last_active) <= s.interval
+            last_active = (time.time() - s.last_active * 1.2) <= s.interval # Give ourselves a 20% activity buffer
             s.db.poll(s.user, s.software, s.path, "active" if last_active else "idle", s.note)
             time.sleep(s.interval)
 
