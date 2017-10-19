@@ -38,6 +38,24 @@ class Display(object):
                 result[row["session"]].append(res)
             return result
 
+    def parse_note(s, from_, to_):
+        """ Query DB, format and parse out notes """
+        data = s.query(from_, to_)
+        result = {}
+        for k in data:
+            for row in data[k]:
+                try:
+                    d = result[row["note"]]
+                    d["time"] += row["checkout"] - row["checkin"]
+                    d["file"].add(row["file"])
+                except KeyError:
+                    result[row["note"]] = {
+                        "time" : row["checkout"] - row["checkin"],
+                        "file" : set([row["file"]]),
+                        }
+        return result
+
+
 if __name__ == '__main__':
     import os
     import test
