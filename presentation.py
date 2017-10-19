@@ -13,10 +13,10 @@ class Display(object):
         s.db = db.DB(db_path)
         s.assets = assets.Assets()
 
-    def query(s, from_, to_):
-        """ Query active entries betweem date amd date """
+    def query(s, from_, to_, similar):
+        """ Query active entries betweem date amd date. Break times into chunks with similar data. """
         result = collections.defaultdict(list)
-        similar = s.db.struct.keys()[4:]
+        # similar = s.db.struct.keys()[4:]
         with s.db:
             for row in s.db.read("status = ? AND checkin BETWEEN ? AND ?", "active", from_, to_):
                 try:
@@ -49,7 +49,7 @@ if __name__ == '__main__':
         tmp_db.poll(1, "us", "python", "path/to/file", "active", "third entry")
         tmp_db.poll(1, "us", "python", "path/to/file", "active", "third entry")
         disp = Display(tmp)
-        res = disp.query(time.time() - 10.0, time.time() + 10.0)
+        res = disp.query(time.time() - 10.0, time.time() + 10., ["note"])
         for session in res:
             assert len(res[session]) == 2
             # pprint.pprint(res[session])
