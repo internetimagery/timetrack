@@ -47,12 +47,13 @@ class Display(object):
                 try:
                     d = result[row["note"]]
                     d["time"] += row["checkout"] - row["checkin"]
-                    d["file"].add(row["file"])
+                    d["files"].add(row["file"])
                 except KeyError:
                     result[row["note"]] = {
                         "time" : row["checkout"] - row["checkin"],
-                        "file" : set([row["file"]]),
-                        }
+                        "files" : set([row["file"]]),
+                        "software": row["software"],
+                        "user": row["user"]}
         return result
 
 
