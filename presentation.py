@@ -18,7 +18,7 @@ class Display(object):
         result = collections.defaultdict(list)
         similar = s.db.struct.keys()[4:]
         with s.db:
-            for row in s.db.read("status = ? AND checkin BETWEEN ? AND ?", "active", from_, to_):
+            for row in s.db.read("status != ? AND checkin BETWEEN ? AND ?", "idle", from_, to_):
                 try:
                     last = result[row["session"]][-1]
                     if row["checkin"] < last["checkout"] + last["period"] * 0.3: # Check we haven't skipped a beat
