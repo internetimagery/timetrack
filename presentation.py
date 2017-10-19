@@ -1,6 +1,7 @@
 # Query and present data in a nice format.
 from __future__ import print_function
 import db
+import collections
 
 class Display(object):
     """ Load and display timesheet data in a nice format """
@@ -15,9 +16,23 @@ class Display(object):
 
     def format_notes(s, in_, out_):
         """ Format """
-        result = {}
+        result = collections.defaultdict(list)
+        similar = s.db.struct.keys()[4:]
         for row in s.query(in_, out_):
-            result[row["note"]] = result.get(row["note"], 0) + row["period"]
+            try:
+                last = result[row["session"]][-1]
+                for key in similar:
+                    if row[key] != last[key]:
+                        break
+                else:
+                    last["end"] = row["checkin"] + row["period"]
+                    continue
+            except IndexError:
+                pass
+            res = {k: row[k] for k in similar}
+            res["start"] = row["checkin"]
+            res["end"] = row["checkin"]
+            result[row["session"]].append(res)
         return result
 
 
@@ -25,11 +40,16 @@ if __name__ == '__main__':
     import os
     import test
     import time
+    import pprint
     with test.temp() as tmp:
         os.unlink(tmp)
         tmp_db = db.DB(tmp)
         tmp_db.poll(1, "me", "python", "path/to/file", "active", "first entry")
         tmp_db.poll(1, "you", "python", "path/to/file", "idle", "second entry")
         tmp_db.poll(1, "us", "python", "path/to/file", "active", "third entry")
+        tmp_db.poll(1, "us", "python", "path/to/file", "active", "third entry")
         disp = Display(tmp)
-        print(disp.format_notes(time.time() - 10.0, time.time() + 10.0))
+        res = disp.format_notes(time.time() - 10.0, time.time() + 10.0)
+        for session in res:
+            assert len(res[session]) == 2
+            # pprint.pprint(res[session])
