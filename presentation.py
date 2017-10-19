@@ -31,7 +31,7 @@ class Display(object):
                 pass
             res = {k: row[k] for k in similar}
             res["start"] = row["checkin"]
-            res["end"] = row["checkin"]
+            res["end"] = row["checkin"] + row["period"]
             result[row["session"]].append(res)
         return result
 
