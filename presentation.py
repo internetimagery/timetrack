@@ -1,11 +1,11 @@
 # Query and present data in a nice format.
 from __future__ import print_function
 import db
+import date
 import assets
-import datetime
 import collections
 
-# datetime.date.fromtimestamp(time.time())
+
 
 class Display(object):
     """ Load and display timesheet data in a nice format """
@@ -56,6 +56,12 @@ class Display(object):
                         "user": row["user"]}
         return result
 
+    def view_note(s):
+        """ View notes """
+        # TEMPORARY FUNCTION FOR TESTING
+        data = assets.Plotly(s.parse_note(date.timestamp() - 99999, date.timestamp()))
+        ass = assets.Assets()
+        ass.view(title="TEST PLOT!", plot=data)
 
 if __name__ == '__main__':
     import os
