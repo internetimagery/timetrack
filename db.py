@@ -8,7 +8,7 @@ import uuid
 import time
 
 # Helpers to work with times
-SECOND = 1
+SECOND = 1.0
 MINUTE = SECOND * 60
 HOUR = MINUTE * 60
 DAY = HOUR * 24
