@@ -10,30 +10,25 @@ class Display(object):
 
     def query(s, from_, to_):
         """ Query active entries betweem date amd date """
-        with s.db:
-            for row in s.db.read("status = ? AND checkin BETWEEN ? AND ?", "active", from_, to_):
-                yield row
-
-    def format_notes(s, in_, out_):
-        """ Format """
         result = collections.defaultdict(list)
         similar = s.db.struct.keys()[4:]
-        for row in s.query(in_, out_):
-            try:
-                last = result[row["session"]][-1]
-                for key in similar:
-                    if row[key] != last[key]:
-                        break
-                else:
-                    last["end"] = row["checkin"] + row["period"]
-                    continue
-            except IndexError:
-                pass
-            res = {k: row[k] for k in similar}
-            res["start"] = row["checkin"]
-            res["end"] = row["checkin"] + row["period"]
-            result[row["session"]].append(res)
-        return result
+        with s.db:
+            for row in s.db.read("status = ? AND checkin BETWEEN ? AND ?", "active", from_, to_):
+                try:
+                    last = result[row["session"]][-1]
+                    for key in similar:
+                        if row[key] != last[key]:
+                            break
+                    else:
+                        last["end"] = row["checkin"] + row["period"]
+                        continue
+                except IndexError:
+                    pass
+                res = {k: row[k] for k in similar}
+                res["start"] = row["checkin"]
+                res["end"] = row["checkin"] + row["period"]
+                result[row["session"]].append(res)
+            return result
 
 
 if __name__ == '__main__':
@@ -49,7 +44,7 @@ if __name__ == '__main__':
         tmp_db.poll(1, "us", "python", "path/to/file", "active", "third entry")
         tmp_db.poll(1, "us", "python", "path/to/file", "active", "third entry")
         disp = Display(tmp)
-        res = disp.format_notes(time.time() - 10.0, time.time() + 10.0)
+        res = disp.query(time.time() - 10.0, time.time() + 10.0)
         for session in res:
             assert len(res[session]) == 2
             # pprint.pprint(res[session])
