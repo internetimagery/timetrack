@@ -1,12 +1,17 @@
 # Query and present data in a nice format.
 from __future__ import print_function
 import db
+import assets
+import datetime
 import collections
+
+# datetime.date.fromtimestamp(time.time())
 
 class Display(object):
     """ Load and display timesheet data in a nice format """
     def __init__(s, db_path):
         s.db = db.DB(db_path)
+        s.assets = assets.Assets()
 
     def query(s, from_, to_):
         """ Query active entries betweem date amd date """

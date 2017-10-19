@@ -44,7 +44,12 @@ plot = json.dumps(plot)
 #     }
 # }
 
-class Asset(object):
+class Plotly(object):
+    """ Collect data and form plotly friendly structure """
+    def __init__(s):
+        s.data = {}
+
+class Assets(object):
     """ Manage assets for presentation """
     def __init__(s):
         # Load our assets in
@@ -85,6 +90,6 @@ class Asset(object):
             webbrowser.open("file://{}".format(TMP_TIMESHEET))
 
 if __name__ == '__main__':
-    a = Asset()
+    a = Assets()
     # print(a.compile())
     a.view()
