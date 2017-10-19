@@ -5,16 +5,7 @@ import contextlib
 import sqlite3
 import os.path
 import uuid
-import time
-
-# Helpers to work with times
-SECOND = 1.0
-MINUTE = SECOND * 60
-HOUR = MINUTE * 60
-DAY = HOUR * 24
-WEEK = DAY * 7
-WORK_WEEK = DAY * 5
-YEAR = DAY * 365
+import date
 
 UUID = str(uuid.uuid4())
 
@@ -62,7 +53,7 @@ class DB(object):
     def poll(s, period, user, software, file, status, note=""):
         """ Poll the database to show activity """
         with s:
-            return s.write(None, time.time(), UUID, period, user, software, file, status, note)
+            return s.write(None, date.timestamp(), UUID, period, user, software, file, status, note)
 
     def read_all(s):
         """ Quick way to grab all data from the database """
