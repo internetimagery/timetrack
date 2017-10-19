@@ -21,19 +21,20 @@ class Display(object):
             for row in s.db.read("status = ? AND checkin BETWEEN ? AND ?", "active", from_, to_):
                 try:
                     last = result[row["session"]][-1]
-                    for key in similar:
-                        if row[key] != last[key]:
-                            break
-                    else:
-                        last["end"] = row["checkin"] + row["period"]
-                        continue
+                    if row["checkin"] < last["end"] * 1.2: # Check we haven't skipped a beat
+                        for key in similar:
+                            if row[key] != last[key]:
+                                break
+                        else:
+                            last["end"] = row["checkin"] + row["period"]
+                            continue
                 except IndexError:
                     pass
                 res = {k: row[k] for k in similar}
                 res["start"] = row["checkin"]
                 res["end"] = row["checkin"] + row["period"]
                 result[row["session"]].append(res)
-            return result            
+            return result
 
 if __name__ == '__main__':
     import os
