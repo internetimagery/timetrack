@@ -21,7 +21,7 @@ class Display(object):
             for row in s.db.read("status = ? AND checkin BETWEEN ? AND ?", "active", from_, to_):
                 try:
                     last = result[row["session"]][-1]
-                    if row["checkin"] < last["end"] * 1.2: # Check we haven't skipped a beat
+                    if row["checkin"] < last["checkout"] + row["period"] * 0.3: # Check we haven't skipped a beat
                         for key in similar:
                             if row[key] != last[key]:
                                 break
@@ -31,8 +31,8 @@ class Display(object):
                 except IndexError:
                     pass
                 res = {k: row[k] for k in similar}
-                res["start"] = row["checkin"]
-                res["end"] = row["checkin"] + row["period"]
+                res["checkin"] = row["checkin"]
+                res["checkout"] = row["checkin"] + row["period"]
                 result[row["session"]].append(res)
             return result
 
