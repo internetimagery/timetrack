@@ -13,10 +13,10 @@ class Display(object):
         s.db = db.DB(db_path)
         s.assets = assets.Assets()
 
-    def query(s, from_, to_, similar):
-        """ Query active entries betweem date amd date. Break times into chunks with similar data. """
+    def query(s, from_, to_):
+        """ Query active entries betweem date amd date. Break into parts whenever data changes. """
         result = collections.defaultdict(list)
-        # similar = s.db.struct.keys()[4:]
+        similar = s.db.struct.keys()[4:]
         with s.db:
             for row in s.db.read("status = ? AND checkin BETWEEN ? AND ?", "active", from_, to_):
                 try:
@@ -33,8 +33,7 @@ class Display(object):
                 res["start"] = row["checkin"]
                 res["end"] = row["checkin"] + row["period"]
                 result[row["session"]].append(res)
-            return result
-
+            return result            
 
 if __name__ == '__main__':
     import os
