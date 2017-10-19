@@ -2,11 +2,8 @@
 from __future__ import print_function
 import db
 import time
-import uuid
 import os.path
 import threading
-
-UUID = str(uuid.uuid4())
 
 class Borg(object):
     """ Maintain singleton status """
@@ -20,13 +17,6 @@ class Monitor(Borg):
         Borg.__init__(s)
         # Create database and set its structure
         s.db = db.DB(db_path)
-        s.db.struct["session"] = "TEXT" # ID for software session
-        s.db.struct["period"] = "NUMBER" # Period of time this chunk covers
-        s.db.struct["user"] = "TEXT" # Username
-        s.db.struct["software"] = "TEXT" # Software running
-        s.db.struct["file"] = "TEXT" # File loaded in software
-        s.db.struct["status"] = "TEXT" # Status of user (ie active/idle/etc)
-        s.db.struct["note"] = "TEXT" # Additional information
 
         # Set variables
         s.active = True # Keep polling? Stop?
@@ -50,7 +40,7 @@ class Monitor(Borg):
         """ Update DB with activity """
         while s.active:
             last_active = (time.time() - s.last_active) <= s.period
-            s.db.poll(UUID, s.period, s.user, s.software, s.path, "active" if last_active else "idle", s.note)
+            s.db.poll(s.period, s.user, s.software, s.path, "active" if last_active else "idle", s.note)
             time.sleep(s.period)
 
     def checkin(s):

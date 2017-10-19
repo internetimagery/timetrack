@@ -36,6 +36,13 @@ plot = [
 ]
 plot = json.dumps(plot)
 
+# { "shotname":
+#     { "day": {
+#         "hours": 6,
+#         "note": 4
+#         }
+#     }
+# }
 
 class Asset(object):
     """ Manage assets for presentation """
