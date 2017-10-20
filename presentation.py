@@ -59,7 +59,7 @@ class Display(object):
     def view_note(s):
         """ View notes """
         # TEMPORARY FUNCTION FOR TESTING
-        data = assets.Plotly(s.parse_note(date.timestamp() - 99999, date.timestamp()))
+        data = assets.Plotly({"This is a test!!!": s.parse_note(date.timestamp() - 99999, date.timestamp())})
         ass = assets.Assets()
         ass.view(title="TEST PLOT!", plot=data)
 

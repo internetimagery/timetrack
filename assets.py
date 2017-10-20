@@ -46,21 +46,23 @@ TMP_TIMESHEET = os.path.expanduser("~/timesheet.tmp.html")
 
 def Plotly(data):
     """ Parse {day: {shot: {time: 1, note:'txt'}}} """
-    result = []
+    result = {}
     for day in data:
         for shot in data[day]:
             try:
                 result[shot]["x"].append(day)
                 result[shot]["y"].append(data[day][shot]["time"])
-                result[shot]["text"].append(data[day][shot]["note"])
+                result[shot]["text"] += data[day][shot]["files"]
             except KeyError:
+                print("shot", shot)
                 result[shot] = {
                     "x": [day],
                     "y": [data[day][shot]["time"]],
                     "type": "bar",
-                    "text": [data[day][shot]["note"]],
-                    "name": shot
-                    }
+                    "text": data[day][shot]["files"],
+                    "name": shot}
+    for shot in result:
+        result[shot]["text"] = "\n".join(result[shot]["text"])
     return json.dumps([result[a] for a in result])
 
 class Assets(object):
@@ -97,7 +99,7 @@ class Assets(object):
     def view(s, **kwargs):
         """ View timesheet with up to date information. """
         with open(TMP_TIMESHEET, "w") as f:
-            f.write(s.compile(*args))
+            f.write(s.compile(**kwargs))
             webbrowser.open("file://{}".format(TMP_TIMESHEET))
 
 if __name__ == '__main__':
