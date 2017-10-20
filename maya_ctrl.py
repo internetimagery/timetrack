@@ -20,7 +20,7 @@ class Monitor(activity.Monitor):
         cmds.scriptJob(e=("SelectionChanged", s.checkin))
         cmds.scriptJob(e=("timeChanged", s.checkin))
         cmds.scriptJob(e=("ToolChanged", s.checkin))
-        s.idle_job = functools.partial(cmds.scriptJob, ie=s.idle_callback, ro=True)
+        s.idle_job = functools.partial(cmds.scriptJob, e=("idle", s.idle_callback), ro=True) # Lower priority than "idleEvent"
         s.sem = threading.BoundedSemaphore(1)
         s.idle = False
         threading.Thread(target=s.idle_loop).start()
@@ -31,9 +31,9 @@ class Monitor(activity.Monitor):
             if not s.idle:
                 utils.executeDeferred(s.checkin)
             s.idle = False
-            s.sem.acquire()
+            s.sem.acquire() # Throttle our requests
             utils.executeDeferred(s.idle_job)
-            time.sleep(0.1)
+            time.sleep(0.3) # Further throttle our checks. Doesn't catch everything, but catches enough to be reliable.
 
     def idle_callback(s):
         """ Respond to idle check """
@@ -43,7 +43,7 @@ class Monitor(activity.Monitor):
     def checkin(s):
         """ Record activity state """
         try:
-            print("ACTIVE!")
+            print("ACTIVEEE!")
             s.set_path(cmds.file(q=True, sn=True) or "")
             activity.Monitor.checkin(s)
         except Exception as err:
