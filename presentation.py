@@ -13,11 +13,10 @@ class Display(object):
         s.db = db.DB(db_path)
         s.assets = assets.Assets()
 
-    def query(s, from_, to_, grace=date.MINUTE * 100):
+    def query(s, from_, to_, grace=date.MINUTE * 11.0):
         """ Query active entries betweem date amd date. Break into parts whenever data changes. """
         result = collections.defaultdict(list)
         similar = s.db.struct.keys()[4:]
-        # similar = ["note"]
         with s.db:
             for row in s.db.read("status != ? AND checkin BETWEEN ? AND ?", "idle", from_, to_):
                 try:
@@ -41,7 +40,7 @@ class Display(object):
             return result
 
     def parse_note(s, from_, to_):
-        """ Query DB, format and parse out notes """
+        """ Query DB, format and parse out favouring notes """
         data = s.query(from_, to_)
         result = {}
         for k in data:
