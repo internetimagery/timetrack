@@ -53,17 +53,17 @@ def Plotly(data):
             try:
                 result[shot]["x"].append(day)
                 result[shot]["y"].append(data[day][shot]["time"] / date.HOUR)
-                result[shot]["text"] += data[day][shot]["files"]
+                result[shot]["text"].append(date.to_time(data[day][shot]["time"]))
             except KeyError:
                 print("shot", shot)
                 result[shot] = {
                     "x": [day],
                     "y": [data[day][shot]["time"] / date.HOUR],
                     "type": "bar",
-                    "text": data[day][shot]["files"],
+                    "text": [date.to_time(data[day][shot]["time"])],
                     "name": shot}
-    for shot in result:
-        result[shot]["text"] = "\n".join(result[shot]["text"])
+    # for shot in result:
+    #     result[shot]["text"] = "\n".join(result[shot]["text"])
     return json.dumps([result[a] for a in result])
 
 class Assets(object):

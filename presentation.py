@@ -13,24 +13,26 @@ class Display(object):
         s.db = db.DB(db_path)
         s.assets = assets.Assets()
 
-    def query(s, from_, to_, idle=date.MINUTE * 10):
+    def query(s, from_, to_, grace=date.MINUTE * 100):
         """ Query active entries betweem date amd date. Break into parts whenever data changes. """
         result = collections.defaultdict(list)
         similar = s.db.struct.keys()[4:]
+        # similar = ["note"]
         with s.db:
             for row in s.db.read("status != ? AND checkin BETWEEN ? AND ?", "idle", from_, to_):
                 try:
                     last = result[row["session"]][-1]
-                    if row["checkin"] < last["checkout"] + idle: # Check we haven't skipped a beat
+                    if row["checkin"] < last["checkout"] + grace: # Check we haven't skipped a beat
                         for key in similar:
                             if row[key] != last[key]:
                                 break
                         else:
-                            last["end"] = row["checkin"] + row["period"]
+                            last["checkout"] = row["checkin"] + row["period"]
                             last["period"] = row["period"]
                             continue
                 except IndexError:
                     pass
+
                 res = {k: row[k] for k in similar}
                 res["period"] = row["period"]
                 res["checkin"] = row["checkin"]

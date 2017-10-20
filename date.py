@@ -1,4 +1,5 @@
 # Date utilities
+from __future__ import print_function, division
 import time
 import datetime
 
@@ -24,4 +25,8 @@ def current():
     """ Current time in datetime """
     return datetime.datetime.now()
 
-print work_week
+def to_time(timestamp):
+    """ Convert to HH:MM """
+    hours = timestamp // HOUR
+    minutes = (timestamp % HOUR) // MINUTE
+    return "{}:{} Hours:Minutes".format(hours, minutes)
