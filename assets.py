@@ -4,6 +4,7 @@ from __future__ import print_function
 import webbrowser
 import os.path
 import json
+import date
 import os
 import re
 
@@ -51,13 +52,13 @@ def Plotly(data):
         for shot in data[day]:
             try:
                 result[shot]["x"].append(day)
-                result[shot]["y"].append(data[day][shot]["time"])
+                result[shot]["y"].append(data[day][shot]["time"] / date.HOUR)
                 result[shot]["text"] += data[day][shot]["files"]
             except KeyError:
                 print("shot", shot)
                 result[shot] = {
                     "x": [day],
-                    "y": [data[day][shot]["time"]],
+                    "y": [data[day][shot]["time"] / date.HOUR],
                     "type": "bar",
                     "text": data[day][shot]["files"],
                     "name": shot}
