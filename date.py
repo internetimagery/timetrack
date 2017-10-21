@@ -21,7 +21,7 @@ def current_week(week):
     """ Week up to this point """
     curr = current_day()
     pos = week.index(curr.strftime("%A"))
-    
+    return [curr - datetime.timedelta(days=a) for a in range(pos + 1)][::-1]
 
 def current_day():
     """ Get current day """
@@ -46,4 +46,4 @@ def to_time(timestamp):
     minutes = (timestamp % HOUR) / MINUTE
     return "{}:{} Hours:Minutes".format(int(hours), str(int(minutes)).zfill(2))
 
-current_week(mon_week)
+print(current_week(mon_week))
