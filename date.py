@@ -17,6 +17,14 @@ mon_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", 
 sun_week = mon_week[6:] + mon_week[:6]
 work_week = mon_week[:5]
 
+def current_week_mon():
+    """ Week up to point, mon start """
+    return current_week(mon_week)
+
+def current_week_sun():
+    """ Week up to point, sun start """
+    return current_week(sun_week)
+
 def current_week(week):
     """ Week up to this point """
     curr = current_day()
