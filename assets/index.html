@@ -8,26 +8,26 @@
     <link rel="stylesheet" href="css/main.css">
   </head>
   <body>
-    <div id="chart" class="chart"></div>
+    <div id="chart1" class="chart"></div>
+    <div id="chart2" class="chart"></div>
     <script src="js/plotly.min.js" charset="utf-8"></script>
     <script type="text/javascript">
-      var plot = {{replace plot}}
+      var plot1 = {{replace plot1}}
+      // var plot2 = {{replace plot2}}
       var layout = {
         title: "{{replace title}}",
         barmode: "stack",
         bargap: 0.05,
         yaxis: {
           title: "Hours",
-          showline: true
-          }
-        }
+          showline: true}}
       var config = {
         scrollZoom: true,
         showLink: false,
         displaylogo: false,
-        showlegend: false
-      }
-      Plotly.newPlot("chart", plot, layout, config)
+        showlegend: false}
+      Plotly.newPlot("chart1", plot1, layout, config)
+      // Plotly.newPlot("chart2", plot2, layout, config)
     </script>
   </body>
 </html>

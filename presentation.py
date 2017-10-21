@@ -60,10 +60,21 @@ class Display(object):
     def view_note(s, column):
         """ View notes. TEMPORARY FUNCTION for very specific display. """
         # TEMPORARY FUNCTION FOR TESTING
-        stamps = collections.OrderedDict((k, s.rearrange(column, s.query(*v))) for k, v in timestamp.week("sunday").items())
-        data = assets.Plotly(stamps)
+        current_stamps = timestamp.week("sunday")
+        # prev_stamps = ((k, (v[0] - timestamp.DAY, v[1] - timestamp.DAY)) for k, v in current_stamps.items())
+
+        ord_current_stamps = collections.OrderedDict((k, s.rearrange(column, s.query(*v))) for k, v in current_stamps.items())
+        # ord_prev_stamps = collections.OrderedDict((k, s.rearrange(column, s.query(*v))) for k, v in prev_stamps)
+
+        curr_data = assets.Plotly(ord_current_stamps)
+        # prev_data = assets.Plotly(ord_prev_stamps)
+
         ass = assets.Assets()
-        ass.view(title="TEST PLOT!", plot=data)
+        ass.view(
+            title="TEST PLOT!",
+            plot1=curr_data,
+            # plot2=prev_data
+            )
 
 if __name__ == '__main__':
     import os
