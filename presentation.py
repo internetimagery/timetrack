@@ -59,28 +59,10 @@ class Display(object):
                     result[row[primary]] = d
         return result
 
-    def parse_note(s, from_, to_):
-        """ Query DB, format and parse out favouring notes """
-        data = s.query(from_, to_)
-        result = {}
-        for k in data:
-            for row in data[k]:
-                try:
-                    d = result[row["note"]]
-                    d["time"] += row["checkout"] - row["checkin"]
-                    d["files"].add(row["file"])
-                except KeyError:
-                    result[row["note"]] = {
-                        "time" : row["checkout"] - row["checkin"],
-                        "files" : set([row["file"]]),
-                        "software": row["software"],
-                        "user": row["user"]}
-        return result
-
     def view_note(s):
         """ View notes. TEMPORARY FUNCTION for very specific display. """
         # TEMPORARY FUNCTION FOR TESTING
-        stamps = collections.OrderedDict((k, s.parse_note(*v)) for k, v in timestamp.week("sunday").items())
+        stamps = collections.OrderedDict((k, s.rearrange("note", s.query(*v))) for k, v in timestamp.week("sunday").items())
         data = assets.Plotly(stamps)
         ass = assets.Assets()
         ass.view(title="TEST PLOT!", plot=data)
@@ -98,12 +80,12 @@ if __name__ == '__main__':
         tmp_db.poll(1, "us", "python", "path/to/file", "active", "third entry")
         tmp_db.poll(1, "us", "python", "path/to/file", "active", "third entry")
         disp = Display(tmp)
-        res = disp.query(time.time() - 10.0, time.time() + 10.0)
-        pprint(res)
-        pprint(disp.rearrange("note", res))
-        pprint(disp.parse_note(time.time() - 10.0, time.time() + 10.0))
-        
+        # res = disp.query(time.time() - 10.0, time.time() + 10.0)
+        # pprint(res)
+        # pprint(disp.rearrange("note", res))
+        # pprint(disp.parse_note(time.time() - 10.0, time.time() + 10.0))
+
         # for session in res:
         #     assert len(res[session]) == 2
             # pprint.pprint(res[session])
-        # disp.view_note()
+        disp.view_note()
