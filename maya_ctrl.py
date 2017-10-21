@@ -15,23 +15,25 @@ class Window(object):
         s.mon = Monitor()
         win = cmds.window(t="TimeTrack Monitor")
         cmds.columnLayout(adj=True)
-        cmds.text("Status:")
-        s.status = cmds.text()
+        s.status = cmds.textFieldGrp(l="Status:", ed=False)
+        s.note = cmds.textFieldGrp(l="Note:", cc=s.update_note)
+        s.active = cmds.checkBoxGrp(l="Start/Stop:", cc=s.toggle)
         cmds.button(l="View Timesheet", c=lambda _: presentation.Display(s.mon.db.path).view_note())
-        s.toggle = cmds.button(c=s.toggle)
         cmds.showWindow(win)
         s.update()
 
     def update(s):
-        cmds.button(s.toggle, e=True, l="Stop" if s.mon.active else "Start")
-        cmds.text(s.status, e=True, l="Active" if s.mon.active else "Idle")
+        active = s.mon.active
+        cmds.textFieldGrp(s.status, e=True, tx="Active" if active else "Idle")
+        cmds.checkBoxGrp(s.active, e=True, v1=active)
+        cmds.textFieldGrp(s.note, e=True, tx=s.mon.note)
 
-    def toggle(s, *_):
-        if s.mon.active:
-            s.mon.stop()
-        else:
-            s.mon.start()
+    def toggle(s, value):
+        s.mon.start() if value else s.mon.stop()
         s.update()
+
+    def update_note(s, text):
+        s.mon.set_note(text)
 
 class Monitor(activity.Monitor):
     def __init__(s):

@@ -6,16 +6,18 @@ import os.path
 import threading
 import timestamp
 
-class Borg(object):
-    """ Maintain singleton status """
-    _shared_state = {}
-    def __init__(s):
-        s.__dict__ = s._shared_state
 
-class Monitor(Borg):
+class Singleton(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+class Monitor(object):
+    __metaclass__ = Singleton
     """ Monitor status and periodically poll DB """
     def __init__(s, software, user, db_path=os.path.expanduser("~/timesheet.db")):
-        Borg.__init__(s)
         # Create database and set its structure
         s.db = db.DB(db_path)
 
@@ -32,18 +34,24 @@ class Monitor(Borg):
         """ Begin polling """
         if not s.active:
             s.active = True
-            threading.Thread(target=s.poll).start()
+            threading.Thread(target=s.poll_loop).start()
 
     def stop(s):
         """ Stop polling for whatever reason """
         s.active = False
 
-    def poll(s):
-        """ Update DB with activity """
+    def poll_loop(s):
+        """ Periodically update DB """
         while s.active:
             if timestamp.now() - s.last_active <= s.period: # Check if we are idle...
-                s.db.poll(s.period, s.user, s.software, s.path, "active", s.note)
+                s.poll()
             time.sleep(s.period)
+
+
+    def poll(s):
+        """ Update DB with activity """
+        if s.active:
+            s.db.poll(s.period, s.user, s.software, s.path, "active", s.note)
 
     def checkin(s):
         """ Check in to show activity with software """
@@ -56,9 +64,16 @@ class Monitor(Borg):
                 yield row
 
     def set_note(s, note):
-        s.note = note
+        note = note.strip()
+        if note != s.note:
+            s.note = note
+            s.poll()
+
     def set_path(s, path):
-        s.path = path
+        path = path.strip()
+        if path != s.path:
+            s.path = path
+            s.poll()
 
 if __name__ == '__main__':
     import test
