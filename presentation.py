@@ -19,6 +19,8 @@ class Display(object):
             for row in s.db.read("status != ? AND checkin BETWEEN ? AND ?", "idle", from_, to_):
                 try:
                     last = result[row["session"]][-1]
+                    if row["checkin"] < last["checkout"]: # Early checkin
+                        last["checkout"] = row["checkin"]
                     if row["checkin"] < last["checkout"] + grace: # Check we haven't skipped a beat
                         for key in similar:
                             if row[key] != last[key]:
