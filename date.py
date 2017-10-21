@@ -13,9 +13,15 @@ WORK_WEEK = DAY * 5
 YEAR = DAY * 365
 
 # Helpers for weeks
-mon_week = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+mon_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 sun_week = mon_week[6:] + mon_week[:6]
 work_week = mon_week[:5]
+
+def current_week(week):
+    """ Week up to this point """
+    curr = current_day()
+    pos = week.index(curr.strftime("%A"))
+    
 
 def current_day():
     """ Get current day """
@@ -40,4 +46,4 @@ def to_time(timestamp):
     minutes = (timestamp % HOUR) / MINUTE
     return "{}:{} Hours:Minutes".format(int(hours), str(int(minutes)).zfill(2))
 
-print(current_day())
+current_week(mon_week)
