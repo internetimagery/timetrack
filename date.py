@@ -17,6 +17,15 @@ mon_week = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", 
 sun_week = mon_week[6:] + mon_week[:6]
 work_week = mon_week[:5]
 
+def current_day():
+    """ Get current day """
+    curr = current() # Current time.
+    return curr - datetime.timedelta(
+        hours=curr.hour,
+        minutes=curr.minute,
+        seconds=curr.second,
+        microseconds=curr.microsecond)
+
 def timestamp():
     """ Current time as float timestamp """
     return time.time()
@@ -30,3 +39,5 @@ def to_time(timestamp):
     hours = timestamp / HOUR
     minutes = (timestamp % HOUR) / MINUTE
     return "{}:{} Hours:Minutes".format(int(hours), str(int(minutes)).zfill(2))
+
+print(current_day())

@@ -24,30 +24,37 @@ class Monitor(activity.Monitor):
         s.sem = threading.BoundedSemaphore(1)
         s.idle = False
         threading.Thread(target=s.idle_loop).start()
+        threading.Thread(target=s.busy_loop).start()
 
     def idle_loop(s):
         """ Loop and watch idle states """
         while s.active:
             if not s.idle:
-                utils.executeDeferred(s.checkin)
+                s.checkin()
             s.idle = False
             s.sem.acquire() # Throttle our requests
             utils.executeDeferred(s.idle_job)
             time.sleep(0.3) # Further throttle our checks. Doesn't catch everything, but catches enough to be reliable.
 
+    def busy_loop(s):
+        """ Loop looking for long periods of business. Such as playblasts etc """
+        while s.active:
+            if not s.idle:
+                s.checkin()
+            time.sleep(30) # Sleep for a decent length of time.
+
     def idle_callback(s):
         """ Respond to idle check """
         s.idle = True
+        s.set_path(cmds.file(q=True, sn=True) or "")
         s.sem.release()
 
     def checkin(s):
         """ Record activity state """
         try:
-            print("ACTIVEEE!")
-            s.set_path(cmds.file(q=True, sn=True) or "")
             activity.Monitor.checkin(s)
         except Exception as err:
-            traceback.print_exc()
+            utils.executeDeferred(traceback.print_exc)
             raise err
 
 if __name__ == '__main__':
