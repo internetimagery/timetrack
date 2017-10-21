@@ -6,16 +6,20 @@ import os.path
 import threading
 import timestamp
 
-
-class Singleton(type):
+# https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python#6798042
+class _Singleton(type):
+    """ A metaclass that creates a Singleton base class when called. """
     _instances = {}
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+            cls._instances[cls] = super(_Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
 
-class Monitor(object):
-    __metaclass__ = Singleton
+class Singleton(_Singleton('SingletonMeta', (object,), {})): pass
+
+# class Monitor(object):
+class Monitor(Singleton):
+    # __metaclass__ = Singleton
     """ Monitor status and periodically poll DB """
     def __init__(s, software, user, db_path=os.path.expanduser("~/timesheet.db")):
         # Create database and set its structure
