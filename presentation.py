@@ -39,6 +39,24 @@ class Display(object):
                 result[row["session"]].append(res)
             return result
 
+    def rearrange(s, primary, data):
+        """ Rearrange times to match new keys. Helping to visualize better. """
+        blacklist = set(s.db.struct.keys())[:4] + set(["checkin", "checkout", "time", "period"])
+        result = {}
+        for session in data:
+            for row in data[k]:
+                try:
+                    d = result[row[primary]]
+                    d["time"] += row["checkout"] - row["checkin"]
+                    for k, v in d:
+                        if k not in blacklist:
+                            v.add(row[k])
+                except KeyError:
+                    d = {k: set(v) for k, v in row.items() if k not in blacklist}
+                    d = {"time" : row["checkout"] - row["checkin"]}
+                    result[row[primary]] = d
+        return result
+
     def parse_note(s, from_, to_):
         """ Query DB, format and parse out favouring notes """
         data = s.query(from_, to_)
@@ -78,8 +96,9 @@ if __name__ == '__main__':
         tmp_db.poll(1, "us", "python", "path/to/file", "active", "third entry")
         tmp_db.poll(1, "us", "python", "path/to/file", "active", "third entry")
         disp = Display(tmp)
-        # res = disp.query(time.time() - 10.0, time.time() + 10.0)
+        res = disp.query(time.time() - 10.0, time.time() + 10.0)
+        print(res)
         # for session in res:
         #     assert len(res[session]) == 2
             # pprint.pprint(res[session])
-        disp.view_note()
+        # disp.view_note()
