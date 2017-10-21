@@ -16,7 +16,7 @@ class Display(object):
     def query(s, from_, to_, grace=timestamp.MINUTE * 11.0):
         """ Query active entries betweem date amd date. Break into parts whenever data changes. """
         result = collections.defaultdict(list)
-        similar = s.db.struct.keys()[4:]
+        similar = list(s.db.struct.keys())[4:]
         with s.db:
             for row in s.db.read("status != ? AND checkin BETWEEN ? AND ?", "idle", from_, to_):
                 try:
@@ -58,8 +58,11 @@ class Display(object):
         return result
 
     def view_note(s):
-        """ View notes """
+        """ View notes. TEMPORARY FUNCTION for very specific display. """
         # TEMPORARY FUNCTION FOR TESTING
+        data = {k: s.parse_note(*v) for k, v in timestamp.week("sunday").items()}
+        print(data)
+        return
         data = assets.Plotly({"This is a test!!!": s.parse_note(timestamp.now() - 99999, timestamp.now())})
         ass = assets.Assets()
         ass.view(title="TEST PLOT!", plot=data)
@@ -77,7 +80,8 @@ if __name__ == '__main__':
         tmp_db.poll(1, "us", "python", "path/to/file", "active", "third entry")
         tmp_db.poll(1, "us", "python", "path/to/file", "active", "third entry")
         disp = Display(tmp)
-        res = disp.query(time.time() - 10.0, time.time() + 10., ["note"])
-        for session in res:
-            assert len(res[session]) == 2
+        # res = disp.query(time.time() - 10.0, time.time() + 10.0)
+        # for session in res:
+        #     assert len(res[session]) == 2
             # pprint.pprint(res[session])
+        disp.view_note()

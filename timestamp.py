@@ -29,7 +29,7 @@ def week(start_day="monday"):
     week = list(calendar.Calendar(getattr(calendar, start_day.upper())).iterweekdays())
     pos = week.index(weekday)
     week_stamp = ((today - datetime.timedelta(days=pos - i)).timestamp() for i, d in enumerate(week))
-    return collections.OrderedDict(((calendar.day_name[a], (b, b + HOUR * 24)) for a, b in zip(week, week_stamp)))
+    return collections.OrderedDict(((calendar.day_name[a], (b, b + DAY)) for a, b in zip(week, week_stamp)))
 
 def now():
     """ Current time as float timestamp """
