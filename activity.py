@@ -20,7 +20,7 @@ class Monitor(Borg):
         s.db = db.DB(db_path)
 
         # Set variables
-        s.active = True # Keep polling? Stop?
+        s.active = False # Keep polling? Stop?
         s.period = timestamp.MINUTE * 5 # Poll how often?
         s.last_active = timestamp.now() # Last checkin
         s.note = ""
@@ -30,8 +30,9 @@ class Monitor(Borg):
 
     def start(s):
         """ Begin polling """
-        s.active = True
-        threading.Thread(target=s.poll).start()
+        if not s.active:
+            s.active = True
+            threading.Thread(target=s.poll).start()
 
     def stop(s):
         """ Stop polling for whatever reason """

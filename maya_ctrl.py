@@ -6,8 +6,29 @@ import activity
 import traceback
 import functools
 import threading
+import presentation
 import maya.cmds as cmds
 import maya.utils as utils
+
+class Window(object):
+    def __init__(s):
+        s.mon = Monitor()
+        win = cmds.window(t="TimeTrack Monitor")
+        cmds.columnLayout(adj=True)
+        cmds.text("Status:")
+        s.status = cmds.text()
+        cmds.button(l="View Timesheet", c=lambda _: presentation.Display(s.mon.db.path).view_note())
+        s.toggle = cmds.button(c=s.toggle)
+        cmds.showWindow(win)
+        s.update()
+
+    def update(s):
+        cmds.button(s.toggle, e=True, l="Stop" if s.mon.active else "Start")
+        cmds.text(s.status, e=True, l="Active" if s.mon.active else "Idle")
+
+    def toggle(s, *_):
+        s.mon.active = False if s.mon.active else True
+        s.update()
 
 class Monitor(activity.Monitor):
     def __init__(s):

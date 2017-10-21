@@ -5,8 +5,6 @@ import assets
 import timestamp
 import collections
 
-
-
 class Display(object):
     """ Load and display timesheet data in a nice format """
     def __init__(s, db_path):
