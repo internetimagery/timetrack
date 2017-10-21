@@ -27,7 +27,10 @@ class Window(object):
         cmds.text(s.status, e=True, l="Active" if s.mon.active else "Idle")
 
     def toggle(s, *_):
-        s.mon.active = False if s.mon.active else True
+        if s.mon.active:
+            s.mon.stop()
+        else:
+            s.mon.start()
         s.update()
 
 class Monitor(activity.Monitor):
