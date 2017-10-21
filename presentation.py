@@ -60,10 +60,8 @@ class Display(object):
     def view_note(s):
         """ View notes. TEMPORARY FUNCTION for very specific display. """
         # TEMPORARY FUNCTION FOR TESTING
-        data = {k: s.parse_note(*v) for k, v in timestamp.week("sunday").items()}
-        print(data)
-        return
-        data = assets.Plotly({"This is a test!!!": s.parse_note(timestamp.now() - 99999, timestamp.now())})
+        stamps = collections.OrderedDict((k, s.parse_note(*v)) for k, v in timestamp.week("sunday").items())
+        data = assets.Plotly(stamps)
         ass = assets.Assets()
         ass.view(title="TEST PLOT!", plot=data)
 
