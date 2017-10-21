@@ -1,8 +1,8 @@
 # Query and present data in a nice format.
 from __future__ import print_function
 import db
-import date
 import assets
+import timestamp
 import collections
 
 
@@ -13,7 +13,7 @@ class Display(object):
         s.db = db.DB(db_path)
         s.assets = assets.Assets()
 
-    def query(s, from_, to_, grace=date.MINUTE * 11.0):
+    def query(s, from_, to_, grace=timestamp.MINUTE * 11.0):
         """ Query active entries betweem date amd date. Break into parts whenever data changes. """
         result = collections.defaultdict(list)
         similar = s.db.struct.keys()[4:]
@@ -60,7 +60,7 @@ class Display(object):
     def view_note(s):
         """ View notes """
         # TEMPORARY FUNCTION FOR TESTING
-        data = assets.Plotly({"This is a test!!!": s.parse_note(date.timestamp() - 99999, date.timestamp())})
+        data = assets.Plotly({"This is a test!!!": s.parse_note(timestamp.now() - 99999, timestamp.now())})
         ass = assets.Assets()
         ass.view(title="TEST PLOT!", plot=data)
 

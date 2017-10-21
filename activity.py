@@ -2,9 +2,9 @@
 from __future__ import print_function
 import db
 import time
-import date
 import os.path
 import threading
+import timestamp
 
 class Borg(object):
     """ Maintain singleton status """
@@ -21,8 +21,8 @@ class Monitor(Borg):
 
         # Set variables
         s.active = True # Keep polling? Stop?
-        s.period = date.MINUTE * 5 # Poll how often?
-        s.last_active = date.timestamp() # Last checkin
+        s.period = timestamp.MINUTE * 5 # Poll how often?
+        s.last_active = timestamp.now() # Last checkin
         s.note = ""
         s.software = software
         s.user = user
@@ -40,16 +40,16 @@ class Monitor(Borg):
     def poll(s):
         """ Update DB with activity """
         while s.active:
-            last_active = (date.timestamp() - s.last_active) <= s.period
-            s.db.poll(s.period, s.user, s.software, s.path, "active" if last_active else "idle", s.note)
+            if timestamp.now() - s.last_active <= s.period: # Check if we are idle...
+                s.db.poll(s.period, s.user, s.software, s.path, "active", s.note)
             time.sleep(s.period)
 
     def checkin(s):
         """ Check in to show activity with software """
-        s.last_active = date.timestamp()
+        s.last_active = timestamp.now()
 
     def query(s, from_, to_):
-        """ Query active entries betweem date amd date """
+        """ Query active entries betweem timestamp amd timestamp """
         with s.db:
             for row in s.db.read("status = ? AND checkin BETWEEN ? AND ?", "active", from_, to_):
                 yield row
@@ -74,7 +74,7 @@ if __name__ == '__main__':
         mon.checkin()
         time.sleep(2) # One active, one idle
         mon.stop()
-        curr = date.timestamp()
+        curr = timestamp.now()
         res = list(mon.query(curr - 10, curr))
         assert len(res) == 2
         assert res[0]["file"] == "path/to/file"
