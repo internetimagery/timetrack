@@ -57,10 +57,10 @@ class Display(object):
                     result[row[primary]] = d
         return result
 
-    def view_note(s):
+    def view_note(s, column):
         """ View notes. TEMPORARY FUNCTION for very specific display. """
         # TEMPORARY FUNCTION FOR TESTING
-        stamps = collections.OrderedDict((k, s.rearrange("note", s.query(*v))) for k, v in timestamp.week("sunday").items())
+        stamps = collections.OrderedDict((k, s.rearrange(column, s.query(*v))) for k, v in timestamp.week("sunday").items())
         data = assets.Plotly(stamps)
         ass = assets.Assets()
         ass.view(title="TEST PLOT!", plot=data)

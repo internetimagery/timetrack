@@ -18,7 +18,8 @@ class Window(object):
         s.status = cmds.textFieldGrp(l="Status:", ed=False)
         s.note = cmds.textFieldGrp(l="Note:", cc=s.update_note)
         s.active = cmds.checkBoxGrp(l="Start/Stop:", cc=s.toggle)
-        cmds.button(l="View Timesheet", c=lambda _: presentation.Display(s.mon.db.path).view_note())
+        cmds.button(l="View Timesheet (Notes)", c=lambda _: presentation.Display(s.mon.db.path).view_note("note"))
+        cmds.button(l="View Timesheet (Files)", c=lambda _: presentation.Display(s.mon.db.path).view_note("file"))
         cmds.showWindow(win)
         s.update()
 
