@@ -25,6 +25,13 @@ def current_week_sun():
     """ Week up to point, sun start """
     return current_week(sun_week)
 
+def current_week_work():
+    """ Week up to point, work start """
+    try:
+        return current_week(work_week)
+    except ValueError:
+        return current_week(mon_week)
+
 def current_week(week):
     """ Week up to this point """
     curr = current_day()
@@ -54,4 +61,4 @@ def to_time(timestamp):
     minutes = (timestamp % HOUR) / MINUTE
     return "{}:{} Hours:Minutes".format(int(hours), str(int(minutes)).zfill(2))
 
-print(current_week(mon_week))
+print(current_week_work())
