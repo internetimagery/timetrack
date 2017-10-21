@@ -41,19 +41,21 @@ class Display(object):
 
     def rearrange(s, primary, data):
         """ Rearrange times to match new keys. Helping to visualize better. """
-        blacklist = set(s.db.struct.keys())[:4] + set(["checkin", "checkout", "time", "period"])
+        blacklist = set(list(s.db.struct.keys())[:4]) | set(["checkin", "checkout", "time", "period"])
         result = {}
         for session in data:
-            for row in data[k]:
+            for row in data[session]:
                 try:
                     d = result[row[primary]]
                     d["time"] += row["checkout"] - row["checkin"]
-                    for k, v in d:
+                    d["session"].add(session)
+                    for k in row:
                         if k not in blacklist:
-                            v.add(row[k])
+                            d[k].add(row[k])
                 except KeyError:
-                    d = {k: set(v) for k, v in row.items() if k not in blacklist}
-                    d = {"time" : row["checkout"] - row["checkin"]}
+                    d = {k: set([v]) for k, v in row.items() if k not in blacklist}
+                    d["time"] = row["checkout"] - row["checkin"]
+                    d["session"] = set([session])
                     result[row[primary]] = d
         return result
 
@@ -87,7 +89,7 @@ if __name__ == '__main__':
     import os
     import test
     import time
-    import pprint
+    from pprint import pprint
     with test.temp() as tmp:
         os.unlink(tmp)
         tmp_db = db.DB(tmp)
@@ -97,7 +99,10 @@ if __name__ == '__main__':
         tmp_db.poll(1, "us", "python", "path/to/file", "active", "third entry")
         disp = Display(tmp)
         res = disp.query(time.time() - 10.0, time.time() + 10.0)
-        print(res)
+        pprint(res)
+        pprint(disp.rearrange("note", res))
+        pprint(disp.parse_note(time.time() - 10.0, time.time() + 10.0))
+        
         # for session in res:
         #     assert len(res[session]) == 2
             # pprint.pprint(res[session])
