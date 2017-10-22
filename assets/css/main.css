@@ -18,3 +18,7 @@ tr:nth-child(even) {
   right: 0;
   font-style: italic;
 }
+
+.hovertext text tspan:first-child {
+  display: none;
+}
