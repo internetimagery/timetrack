@@ -61,7 +61,7 @@ class Display(object):
 
     def view_note(s, column, past=0):
         """ View notes. TEMPORARY FUNCTION for very specific display. """
-        title = "{} weeks ago.".format(past) if past else "Current week."
+        title = "Last week." if past == 1 else "{} weeks ago.".format(past) if past else "Current week."
 
         current_stamps = collections.OrderedDict((k, (v[0] - timestamp.WEEK * past, v[1] - timestamp.WEEK * past)) for k, v in timestamp.week("sunday").items())
 
