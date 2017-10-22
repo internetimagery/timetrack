@@ -38,4 +38,4 @@ def format(timestamp):
     """ Convert to HH:MM """
     hours = timestamp / HOUR
     minutes = (timestamp % HOUR) / MINUTE
-    return "{}:{} Hours:Minutes".format(int(hours), str(int(minutes)).zfill(2))
+    return "{}:{}".format(int(hours), str(int(minutes)).zfill(2))

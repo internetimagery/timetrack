@@ -55,7 +55,6 @@ def Plotly(data):
                 result[shot]["y"].append(data[day][shot]["time"] / timestamp.HOUR)
                 result[shot]["text"].append(timestamp.format(data[day][shot]["time"]))
             except KeyError:
-                print("shot", shot)
                 result[shot] = {
                     "x": [day],
                     "y": [data[day][shot]["time"] / timestamp.HOUR],
@@ -65,6 +64,21 @@ def Plotly(data):
     # for shot in result:
     #     result[shot]["text"] = "\n".join(result[shot]["text"])
     return json.dumps([result[a] for a in result])
+
+def Table(data):
+    """ Create table from data """
+    shots = set(s for d in data for s in data[d])
+    thead = "<td>Shot</td>\n" + "".join("<td>{}</td>\n".format(a) for a in data.keys())
+    tbody = ""
+    for shot in shots:
+        tbody += "<tr>\n<td>{}</td>\n".format(shot)
+        for day in data:
+            try:
+                tbody += "<td>{}</td>\n".format(timestamp.format(data[day][shot]["time"]))
+            except KeyError:
+                tbody += "<td>--</td>\n"
+        tbody += "</tr>\n"
+    return "<table>\n\t<thead>\n<tr>{}\n</tr>\n\t</thead>\n\t<tbody>{}\n\t<tbody>\n</table>".format(thead, tbody)
 
 class Assets(object):
     """ Manage assets for presentation """

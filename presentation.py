@@ -59,23 +59,23 @@ class Display(object):
                     result[row[primary]] = d
         return result
 
-    def view_note(s, column):
+    def view_note(s, column, past=0):
         """ View notes. TEMPORARY FUNCTION for very specific display. """
-        # TEMPORARY FUNCTION FOR TESTING
-        current_stamps = timestamp.week("sunday")
-        # prev_stamps = ((k, (v[0] - timestamp.DAY, v[1] - timestamp.DAY)) for k, v in current_stamps.items())
+        title = "{} weeks ago.".format(past) if past else "Current week."
+
+        current_stamps = collections.OrderedDict((k, (v[0] - timestamp.WEEK * past, v[1] - timestamp.WEEK * past)) for k, v in timestamp.week("sunday").items())
 
         ord_current_stamps = collections.OrderedDict((k, s.rearrange(column, s.query(*v))) for k, v in current_stamps.items())
-        # ord_prev_stamps = collections.OrderedDict((k, s.rearrange(column, s.query(*v))) for k, v in prev_stamps)
 
         curr_data = assets.Plotly(ord_current_stamps)
-        # prev_data = assets.Plotly(ord_prev_stamps)
+        curr_table = assets.Table(ord_current_stamps)
 
         ass = assets.Assets()
         ass.view(
-            title="TEST PLOT!",
+            title=title,
             plot1=curr_data,
-            # plot2=prev_data
+            table=curr_table,
+            comp=timestamp.datetime.datetime.now().strftime("Created on %a %m %Y %M:%S")
             )
 
 if __name__ == '__main__':
