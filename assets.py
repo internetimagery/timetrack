@@ -11,40 +11,6 @@ import re
 ASSET_ROOT = os.path.join(os.path.dirname(__file__), "assets")
 TMP_TIMESHEET = os.path.expanduser("~/timesheet.tmp.html")
 
-
-# plot = [
-#   {
-#     "x": ["monday", "tuesday", "wednesday"],
-#     "y": [8, 7, 2],
-#     "type": "bar",
-#     "name": "shot1",
-#     "text": ["extra information","more info","some info about shot"]
-#   },
-#   {
-#     "x": ["monday", "tuesday", "wednesday"],
-#     "y": [2, 3, 5],
-#     "type": "bar",
-#     "name": "shot2",
-#     "text": ["I have info for you...","stuff to say","info here"]
-#   },
-#    {
-#      "x": ["monday", "tuesday", "wednesday"],
-#      "y": [5, 4, 2],
-#      "type": "bar",
-#      "name": "shot3",
-#      "text": ["Maybe filepath here","things","ok nice"]
-#    }
-# ]
-# plot = json.dumps(plot)
-
-# { "shotname":
-#     { "day": {
-#         "hours": 6,
-#         "note": 4
-#         }
-#     }
-# }
-
 def Plotly(data):
     """ Parse {day: {shot: {time: 1, note:'txt'}}} """
     result = {}
@@ -61,8 +27,6 @@ def Plotly(data):
                     "type": "bar",
                     "text": [timestamp.format(data[day][shot]["time"])],
                     "name": shot}
-    # for shot in result:
-    #     result[shot]["text"] = "\n".join(result[shot]["text"])
     return json.dumps([result[a] for a in result])
 
 def Table(data):
@@ -70,14 +34,21 @@ def Table(data):
     shots = set(s for d in data for s in data[d])
     thead = "<td>Shot</td>\n" + "".join("<td>{}</td>\n".format(a) for a in data.keys())
     tbody = ""
+    totals = {}
     for shot in shots:
         tbody += "<tr>\n<td>{}</td>\n".format(shot)
         for day in data:
             try:
                 tbody += "<td>{}</td>\n".format(timestamp.format(data[day][shot]["time"]))
+                totals[day] = totals.get(day, 0) + data[day][shot]["time"]
             except KeyError:
                 tbody += "<td>--</td>\n"
         tbody += "</tr>\n"
+    tbody += "<tr>\n"
+    for day in data:
+        total = totals.get(day, 0)
+        tbody += "<td>{}</td>\n".format(timestamp.format(total) if total else "--")
+    tbody += "</tr>\n"
     return "<table>\n\t<thead>\n<tr>{}\n</tr>\n\t</thead>\n\t<tbody>{}\n\t<tbody>\n</table>".format(thead, tbody)
 
 class Assets(object):
