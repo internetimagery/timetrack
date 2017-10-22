@@ -44,7 +44,7 @@ def Table(data):
             except KeyError:
                 tbody += "<td>--</td>\n"
         tbody += "</tr>\n"
-    tbody += "<tr>\n"
+    tbody += "<tr>\n<td>Totals:</td>\n"
     for day in data:
         total = totals.get(day, 0)
         tbody += "<td>{}</td>\n".format(timestamp.format(total) if total else "--")
