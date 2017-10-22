@@ -26,40 +26,39 @@ class Monitor(Singleton):
         s.db = db.DB(db_path)
 
         # Set variables
-        s.active = False # Keep polling? Stop?
-        s.period = timestamp.MINUTE * 5 # Poll how often?
-        s.last_active = timestamp.now() # Last checkin
-        s.note = ""
-        s.software = software
-        s.user = user
-        s.path = ""
+        s._active = False # Keep polling? Stop?
+        s._period = timestamp.MINUTE * 5 # Poll how often?
+        s._last_active = timestamp.now() # Last checkin
+        s._note = ""
+        s._software = software
+        s._user = user
+        s._path = ""
 
     def start(s):
         """ Begin polling """
-        if not s.active:
-            s.active = True
+        if not s._active:
+            s._active = True
             threading.Thread(target=s.poll_loop).start()
 
     def stop(s):
         """ Stop polling for whatever reason """
-        s.active = False
+        s._active = False
 
     def poll_loop(s):
         """ Periodically update DB """
-        while s.active:
-            if timestamp.now() - s.last_active <= s.period: # Check if we are idle...
+        while s._active:
+            if timestamp.now() - s._last_active <= s._period: # Check if we are idle...
                 s.poll()
-            time.sleep(s.period)
-
+            time.sleep(s._period)
 
     def poll(s):
         """ Update DB with activity """
-        if s.active:
-            s.db.poll(s.period, s.user, s.software, s.path, "active", s.note)
+        if s._active:
+            s.db.poll(s._period, s._user, s._software, s._path, "active", s._note)
 
     def checkin(s):
         """ Check in to show activity with software """
-        s.last_active = timestamp.now()
+        s._last_active = timestamp.now()
 
     def query(s, from_, to_):
         """ Query active entries betweem timestamp amd timestamp """
@@ -67,17 +66,24 @@ class Monitor(Singleton):
             for row in s.db.read("status = ? AND checkin BETWEEN ? AND ?", "active", from_, to_):
                 yield row
 
-    def set_note(s, note):
-        note = note.strip()
-        if note != s.note:
-            s.note = note
+    def set_var(s, var, val):
+        """ Set variable only on changes and poll, generic. """
+        val = val.strip()
+        if val != getattr(s, var):
+            setattr(s, var, val)
             s.poll()
 
-    def set_path(s, path):
-        path = path.strip()
-        if path != s.path:
-            s.path = path
-            s.poll()
+    def set_note(s, val):
+        s.set_var("_note", val)
+    def get_note(s):
+        return s._note
+    def set_path(s, val):
+        s.set_var("_path", val)
+    def get_path(s):
+        return s._path
+
+    def get_status(s):
+        return s._active
 
 if __name__ == '__main__':
     import test
@@ -85,7 +91,7 @@ if __name__ == '__main__':
     with test.temp(".db") as tmp:
         os.unlink(tmp)
         mon = Monitor("python", "ME!", tmp)
-        mon.period = 1 # speed period to one second
+        mon._period = 1 # speed period to one second
         mon.set_note("HI THERE")
         mon.set_path("path/to/file")
         print("Polling please wait...")

@@ -13,10 +13,13 @@ import maya.utils as utils
 class Window(object):
     def __init__(s):
         s.mon = Monitor()
-        win = cmds.window(t="TimeTrack Monitor")
+        name = "TimeTrack"
+        if cmds.window(name, q=True, ex=True):
+            cmds.deleteUI(name)
+        win = cmds.window(name, t="TimeTrack Monitor", rtf=True)
         cmds.columnLayout(adj=True)
         s.status = cmds.textFieldGrp(l="Status:", ed=False)
-        s.note = cmds.textFieldGrp(l="Note:", cc=s.update_note)
+        s.note = cmds.textFieldButtonGrp(l="Note:", bl="Set", cc=s.update_note, bc=s.update_note)
         s.active = cmds.checkBoxGrp(l="Start/Stop:", cc=s.toggle)
         cmds.button(l="View Timesheet (Notes)", c=lambda _: presentation.Display(s.mon.db.path).view_note("note"))
         cmds.button(l="View Timesheet (Files)", c=lambda _: presentation.Display(s.mon.db.path).view_note("file"))
@@ -24,17 +27,19 @@ class Window(object):
         s.update()
 
     def update(s):
-        active = s.mon.active
+        active = s.mon.get_status()
         cmds.textFieldGrp(s.status, e=True, tx="Active" if active else "Idle")
         cmds.checkBoxGrp(s.active, e=True, v1=active)
-        cmds.textFieldGrp(s.note, e=True, tx=s.mon.note)
+        cmds.textFieldButtonGrp(s.note, e=True, tx=s.mon.get_note())
 
     def toggle(s, value):
         s.mon.start() if value else s.mon.stop()
         s.update()
 
-    def update_note(s, text):
+    def update_note(s, *_):
+        text = cmds.textFieldButtonGrp(s.note, q=True, tx=True)
         s.mon.set_note(text)
+        print("\nNote set to: {}".format(text), end="")
 
 class Monitor(activity.Monitor):
     def __init__(s):
@@ -55,7 +60,7 @@ class Monitor(activity.Monitor):
 
     def idle_loop(s):
         """ Loop and watch idle states """
-        while s.active:
+        while s._active:
             if not s.idle:
                 s.checkin()
             s.idle = False
@@ -65,7 +70,7 @@ class Monitor(activity.Monitor):
 
     def busy_loop(s):
         """ Loop looking for long periods of business. Such as playblasts etc """
-        while s.active:
+        while s._active:
             if not s.idle:
                 s.checkin()
             time.sleep(30) # Sleep for a decent length of time.
