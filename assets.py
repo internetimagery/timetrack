@@ -19,13 +19,13 @@ def Plotly(data):
             try:
                 result[shot]["x"].append(day)
                 result[shot]["y"].append(data[day][shot]["time"] / timestamp.HOUR)
-                result[shot]["text"].append(timestamp.format(data[day][shot]["time"]))
+                result[shot]["text"].append("{} ~ \"{}\"".format(timestamp.format(data[day][shot]["time"]), shot))
             except KeyError:
                 result[shot] = {
                     "x": [day],
                     "y": [data[day][shot]["time"] / timestamp.HOUR],
                     "type": "bar",
-                    "text": [timestamp.format(data[day][shot]["time"])],
+                    "text": ["{} ~ \"{}\"".format(timestamp.format(data[day][shot]["time"]), shot)],
                     "name": shot}
     return json.dumps([result[a] for a in result])
 

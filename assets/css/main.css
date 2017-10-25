@@ -19,6 +19,6 @@ tr:nth-child(even) {
   font-style: italic;
 }
 
-.hovertext text tspan:first-child {
+.hovertext text tspan:first-child, .hovertext rect, .hovertext .name {
   display: none;
 }
