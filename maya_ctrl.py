@@ -22,7 +22,7 @@ class Window(object):
         s.note = cmds.textFieldButtonGrp(l="Note:", bl="Set", cc=s.update_note, bc=s.update_note)
         s.active = cmds.checkBoxGrp(l="Start/Stop:", cc=s.toggle)
         cmds.separator()
-        s.past = cmds.intFieldGrp(l="Weeks ago:")
+        s.past = cmds.intFieldGrp(l="Weeks ago:", v1=1)
         cmds.button(l="View Timesheet (Notes)", c=lambda _: presentation.Display(s.mon.db.path).view_note("note", cmds.intFieldGrp(s.past, q=True, v1=True)))
         cmds.button(l="View Timesheet (Files)", c=lambda _: presentation.Display(s.mon.db.path).view_note("file", cmds.intFieldGrp(s.past, q=True, v1=True)))
         cmds.showWindow(win)
